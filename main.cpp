@@ -1,4 +1,4 @@
-#include "memory_allocator.cpp"
+#include "memory_allocator.h"
 
 int main() {
 

@@ -8,14 +8,19 @@
 #include<iostream>
 #include<sys/mman.h>
 
-void* heap = NULL;
 
 struct meta {
     size_t size; //size of user memory
     bool free;
-    meta* next; //ptr to next meta block
+    meta *next; //ptr to next meta block
+    meta *prev;
 };
 
-void alloc(size_t req_size);
+
+meta* find_free(size_t req_size);
+void createMeta(size_t req_size, meta* current);
+meta* alloc(size_t req_size);
+
+
 
 #endif //MEMORY_ALLOCATOR_H
