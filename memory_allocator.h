@@ -11,9 +11,9 @@
 void* heap = NULL;
 
 struct meta {
-    size_t size;
+    size_t size; //size of user memory
     bool free;
-    meta* next;
+    meta* next; //ptr to next meta block
 };
 
 void alloc(size_t req_size);
