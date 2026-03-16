@@ -5,6 +5,23 @@
 
 meta *heap = NULL;
 
+meta* find_free(size_t req_size, meta* start) {
+
+    meta* temp = start;
+
+    while (temp != NULL) {
+
+        if (temp->free && temp->size >= (req_size + sizeof(meta))){
+            return temp;
+        }
+
+        temp = temp->next;
+    }
+
+    return NULL;
+}
+
+
 void createMeta(size_t req_size, meta* current) {
 
     meta* newm = reinterpret_cast<meta*>((char*)current + req_size + sizeof(meta));
@@ -30,13 +47,19 @@ void* alloc(size_t req_size) {
         heap = reinterpret_cast<meta*>(mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
         //we are passing address, size, permissions, private/shared flag, file descriptor and offset.
         heap->prev = NULL;
+        heap->free = true;
         heap->size = 4096 - sizeof(meta);
         heap->next = NULL;
         createMeta(req_size, heap);
         return heap+1;
     }
     else {
-        return (void*)((char*)heap + sizeof(meta));
+        meta* free_space = find_free(req_size, heap);
+        if (free_space) {
+            createMeta(req_size, free_space);
+            return free_space +1;
+        }
+        return NULL;
     }
 
 }
