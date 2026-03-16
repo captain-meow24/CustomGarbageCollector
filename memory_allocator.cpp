@@ -34,7 +34,7 @@ void createMeta(size_t req_size, meta* current) {
 
 void* alloc(size_t req_size) {
     if (req_size%8) {
-        size_t alignm = req_size%8;  //aligning to 8 bits
+        size_t alignm = req_size%8;  //aligning to 8 bytes
         alignm = 8 - alignm;
         req_size += alignm;
     }
@@ -59,7 +59,7 @@ void* alloc(size_t req_size) {
 
 }
 
-void free_space(meta* garbage) {
+void free_memory(meta* garbage) {
     if (garbage->prev && garbage->next && garbage->prev->free && garbage->next->free) {
         garbage->prev->size += sizeof(meta) + sizeof(meta) + garbage->size + garbage->next->size;
         garbage->prev->next = garbage->next->next;
