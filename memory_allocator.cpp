@@ -3,17 +3,9 @@
 //
 #include "memory_allocator.h"
 
-void *heap_alloc(size_t size) {
-    assert(heap_size + size <= CAPACITY);
-    void *result = heap + heap_size;
-    heap_size += size;
-    assert(alloc_chunk_size + 1 < CHUNK_CAP);
-    chunk *chunk1 = new chunk();
-    chunk1->start = result;
-    chunk1->size = size;
-    alloc_chunk_size ++;
-    heap_chunk[alloc_chunk_size] = chunk1;
-
-    return 0;
+void alloc(size_t req_size) {
+    if (heap == NULL) {
+        heap = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); //we are passing address, size, permissions, private/shared flag, file descriptor and offset.
+    }
 
 }

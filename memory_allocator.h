@@ -6,24 +6,16 @@
 #define MEMORY_ALLOCATOR_H
 
 #include<iostream>
-#include<cassert>
+#include<sys/mman.h>
 
-#define CAPACITY 64000
-#define CHUNK_CAP 1024
+void* heap = NULL;
 
-char heap[CAPACITY]{};
-size_t heap_size = 0;
-
-class chunk {
-public:
-    void *start;
+struct meta {
     size_t size;
+    bool free;
+    meta* next;
 };
-chunk* heap_chunk[CHUNK_CAP]{};
-size_t alloc_chunk_size = 0;
 
-void *heap_alloc(size_t size);
-void heap_free(void *ptr);
-
+void alloc(size_t req_size);
 
 #endif //MEMORY_ALLOCATOR_H
