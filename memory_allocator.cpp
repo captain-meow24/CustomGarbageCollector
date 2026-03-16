@@ -6,8 +6,12 @@
 meta *heap = NULL;
 
 void createMeta(size_t req_size, meta* current) {
+
     meta* newm = reinterpret_cast<meta*>((char*)current + req_size + sizeof(meta));
     newm->next = current->next;
+    if (newm->next) {
+        newm->next->prev = newm;
+    }
     newm->free = true;
     newm->size = current->size - req_size - sizeof(meta);
     newm->prev = current;
@@ -16,7 +20,12 @@ void createMeta(size_t req_size, meta* current) {
     current->free = false;
 }
 
-meta* alloc(size_t req_size) {
+void* alloc(size_t req_size) {
+    if (req_size%8) {
+        size_t alignm = req_size%8;  //aligning to 8 bits
+        alignm = 8 - alignm;
+        req_size += alignm;
+    }
     if (heap == NULL) {
         heap = reinterpret_cast<meta*>(mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
         //we are passing address, size, permissions, private/shared flag, file descriptor and offset.
@@ -24,10 +33,10 @@ meta* alloc(size_t req_size) {
         heap->size = 4096 - sizeof(meta);
         heap->next = NULL;
         createMeta(req_size, heap);
-        return (meta*)((char*)heap + sizeof(meta));
+        return heap+1;
     }
     else {
-        return (meta*)((char*)heap + sizeof(meta));
+        return (void*)((char*)heap + sizeof(meta));
     }
 
 }

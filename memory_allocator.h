@@ -19,7 +19,7 @@ struct meta {
 
 meta* find_free(size_t req_size);
 void createMeta(size_t req_size, meta* current);
-meta* alloc(size_t req_size);
+void* alloc(size_t req_size);
 
 
 
