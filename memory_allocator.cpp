@@ -6,18 +6,13 @@
 meta *heap = NULL;
 
 meta* find_free(size_t req_size, meta* start) {
-
     meta* temp = start;
-
     while (temp != NULL) {
-
         if (temp->free && temp->size >= (req_size + sizeof(meta))){
             return temp;
         }
-
         temp = temp->next;
     }
-
     return NULL;
 }
 
@@ -62,4 +57,31 @@ void* alloc(size_t req_size) {
         return NULL;
     }
 
+}
+
+void free_space(meta* garbage) {
+    if (garbage->prev && garbage->next && garbage->prev->free && garbage->next->free) {
+        garbage->prev->size += sizeof(meta) + sizeof(meta) + garbage->size + garbage->next->size;
+        garbage->prev->next = garbage->next->next;
+        if (garbage->next->next) {
+            garbage->next->next->prev = garbage->prev;
+        }
+    }
+    else if (garbage->prev && garbage->prev->free) {
+        garbage->prev->size += garbage->size + sizeof(meta);
+        garbage->prev->next = garbage->next;
+        if (garbage->next) {
+            garbage->next->prev = garbage->prev;
+        }
+    }
+    else if (garbage->next && garbage->next->free) {
+        garbage->next->prev = garbage->prev;
+        garbage->next->size += sizeof(meta) + garbage->size;
+        if (garbage->prev) {
+            garbage->prev->next = garbage->next;
+        }
+    }
+    else {
+        garbage->free = true;
+    }
 }

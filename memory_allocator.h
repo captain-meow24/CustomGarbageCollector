@@ -20,7 +20,7 @@ struct meta {
 meta* find_free(size_t req_size, meta* start);
 void createMeta(size_t req_size, meta* current);
 void* alloc(size_t req_size);
-
+void free_space(meta* garbage);
 
 
 #endif //MEMORY_ALLOCATOR_H
