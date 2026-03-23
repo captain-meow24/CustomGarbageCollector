@@ -19,8 +19,8 @@ meta* find_free(size_t req_size, meta* start) {
 
 void createMeta(size_t req_size, meta* current) {
 
-    meta* newm = reinterpret_cast<meta*>((char*)current + req_size + sizeof(meta));
-    newm->next = current->next;
+    meta* newm = reinterpret_cast<meta*>((char*)current + req_size + sizeof(meta));   //making a new meta block where the requested user memory ends
+    newm->next = current->next; //connecting the double linked list
     if (newm->next) {
         newm->next->prev = newm;
     }
@@ -33,8 +33,15 @@ void createMeta(size_t req_size, meta* current) {
 }
 
 void* alloc(size_t req_size) {
+
+    size_t offset = 8 - (sizeof(meta)%8);   //size of the padding between meta chunk and user memory, to align start and end of the user memory by 8 bytes
+    //this is done so that we can each word can be scanned and checked for pointer to heap, hence implementing mark and sweep for garbage collection
+    if (offset == 8) {
+        offset = 0;
+    }
+
     if (req_size%8) {
-        size_t alignm = req_size%8;  //aligning to 8 bytes
+        size_t alignm = req_size%8;  //aligning user memory to 8 bytes
         alignm = 8 - alignm;
         req_size += alignm;
     }
@@ -46,17 +53,14 @@ void* alloc(size_t req_size) {
         heap->size = 4096 - sizeof(meta);
         heap->next = NULL;
         createMeta(req_size, heap);
-        return heap+1;
+        return (char*)(heap+1)+ offset;
     }
-    else {
-        meta* free_space = find_free(req_size, heap);
-        if (free_space) {
-            createMeta(req_size, free_space);
-            return free_space +1;
-        }
-        return NULL;
+    meta* free_space = find_free(req_size, heap);
+    if (free_space) {
+        createMeta(req_size, free_space);
+        return free_space +1 +offset;
     }
-
+    return NULL;
 }
 
 void free_memory(meta* garbage) {
