@@ -14,6 +14,7 @@ struct meta {
     bool free;
     meta *next; //ptr to next meta block
     meta *prev;
+    bool reachable = false;
 };
 
 
