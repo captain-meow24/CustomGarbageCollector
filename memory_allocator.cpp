@@ -3,7 +3,7 @@
 //
 #include "memory_allocator.h"
 
-meta *heap = NULL;
+meta* heap = NULL;
 
 meta* find_free(size_t req_size, meta* start) {
     meta* temp = start;

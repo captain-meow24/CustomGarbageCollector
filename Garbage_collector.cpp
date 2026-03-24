@@ -26,8 +26,19 @@ void scan_stack() {
     }
 }
 
-void compare_heap(uint64_t temp) {
-    size_t offset = 8 - (sizeof(meta)%8);
-
-
+void mark_meta(uint64_t temp) {
+    size_t offset = (8 - (sizeof(meta) % 8)) % 8;
+    meta* list = heap;
+    if ((temp >= ((uintptr_t)heap + sizeof(meta) + offset )) && temp < ((uintptr_t)heap + 4096)) {
+        while (list != NULL) {
+            uintptr_t start = (uintptr_t)list + sizeof(meta) + offset;
+           uintptr_t end   = start + list->size;
+            if ((temp >= start) && (temp < end)) {
+                list->reachable = true;
+                break;
+            }
+            list = list->next;
+        }
+    }
+    //This function goes to every block in the heap linked list and checks if the temp value lies in the the address range of any meta block
 }

@@ -17,6 +17,6 @@ void mark();
 void sweep();
 void scan_stack();
 void scan_heap();
-void compare_heap(uint64_t temp);
+void mark_meta(uint64_t temp);
 
 #endif //GARBAGE_COLLECTOR_H

@@ -17,6 +17,7 @@ struct meta {
     bool reachable = false;
 };
 
+extern meta* heap;
 
 meta* find_free(size_t req_size, meta* start);
 void createMeta(size_t req_size, meta* current);
