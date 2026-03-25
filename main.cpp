@@ -7,9 +7,9 @@ void example() {
 
 int main() {
     example();
-    int* a = (int*)alloc(1000 * sizeof(int));
-    *a = 12;
-    std::cout<<*a<<std::endl;
-    std::cout<<a;
+    int* b = (int*)alloc(100);
+    *b = 12;
+    std::cout<<*b<<std::endl;
+    std::cout<<b;
     return 0;
 }

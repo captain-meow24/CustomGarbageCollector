@@ -47,14 +47,23 @@ void *alloc(size_t req_size) {
         heap->size = 4096 - sizeof(meta);
         heap->next = NULL;
         createMeta(req_size, heap);
-        return (char *) (heap + 1) + offset;
+        return reinterpret_cast<char*>(heap + 1) + offset;
     }
     meta *free_space = find_free(req_size, heap);
     if (free_space) {
         createMeta(req_size, free_space);
         return free_space + 1 + offset;
     }
-
+    get_stack();
+    scan_stack();
+    scan_heap();
+    sweep();
+    reset_reachable();
+    meta *new_free = find_free(req_size,heap);
+    if (new_free) {
+        createMeta(req_size, new_free);
+        return new_free + 1 + offset;
+    }
     return NULL;
 }
 
@@ -106,11 +115,13 @@ void scan_heap() {
     size_t offset = (8 - (sizeof(meta) % 8)) % 8;
     meta *list = heap;
     while (list != NULL) {
-        char *start = (char *) list + offset + sizeof(meta);
-        char *end = start + list->size;
-        for (char *curr = start; curr < end; curr += 8) {
-            uint64_t val = *(uint64_t *) curr;
-            mark_meta(val);
+        if (list->reachable) {
+            char *start = (char *) list + offset + sizeof(meta);
+            char *end = start + list->size;
+            for (char *curr = start; curr < end; curr += 8) {
+                uint64_t val = *(uint64_t *) curr;
+                mark_meta(val);
+            }
         }
         list = list->next;
     }
@@ -129,5 +140,23 @@ void mark_meta(uint64_t temp) {
             }
             list = list->next;
         }
+    }
+}
+
+void sweep() {
+    meta* current = heap;
+    while (current != NULL) {
+        if (current->reachable == false && current->free==false) {
+            free_memory(current);
+        }
+        current = current->next;
+    }
+}
+
+void reset_reachable() {
+    meta* temp = heap;
+    while (temp!=NULL) {
+        temp->reachable = false;
+        temp=temp->next;
     }
 }

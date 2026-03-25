@@ -35,7 +35,7 @@ void sweep();
 void scan_stack();
 void scan_heap();
 void mark_meta(uint64_t temp);
-void mark();
 void sweep();
+void reset_reachable();
 
 #endif //MEMORY_ALLOCATOR_H
