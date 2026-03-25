@@ -10,7 +10,7 @@
 #include <cstdint>
 
 char *stack_high;   //this is where the stack memory starts storing, this is the highest address as stack grows towards lower memory address
-void* current_base;   //this will store the starting address of stack/highest address
+void* current_top;   //this will store the starting address of stack/highest address
 
 void get_stack();  //gets size and bottom address of the stack
 void mark();

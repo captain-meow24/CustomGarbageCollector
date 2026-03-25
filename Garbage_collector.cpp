@@ -13,18 +13,32 @@ void get_stack() {
     pthread_attr_getstack(&attr, (void**)&stack_low,&size);   //void** means it points tos something unknown, it can hold any type
     stack_high = stack_low + size;
     pthread_attr_destroy(&attr);   //destroying attr to avoid resources leak
-    asm volatile("mov %%rsp, %0" : "=r"(current_base));
+    asm volatile("mov %%rsp, %0" : "=r"(current_top));
 }
 
-void scan_stack() {
-
-    char* temp = (char*)current_base;
+void scan_stack() {   //this function scans stack for any pointers, 8 bytes at a time
+    char* temp = (char*)current_top;
     while (temp< stack_high) {
         uint64_t value = *(uint64_t*)temp;
         mark_meta(value);
-        temp += 16;   //pointers are 16 byte aligned in x86 64
+        temp += 8;   //pointers are 8 byte aligned in x86 64
     }
 }
+
+void scan_heap() {    //this function scans user accessable heap for any pointers
+    size_t offset = (8 - (sizeof(meta) % 8)) % 8;
+    meta* list = heap;
+    while (list != NULL) {
+        char* start = (char*)list + offset + sizeof(meta);
+        char* end = start + list->size;
+        for (char* curr = start; curr < end; curr += 8) {
+            uint64_t val = *(uint64_t*)curr;
+            mark_meta(val);
+        }
+        list = list->next;
+    }
+}
+
 
 void mark_meta(uint64_t temp) {
     size_t offset = (8 - (sizeof(meta) % 8)) % 8;
