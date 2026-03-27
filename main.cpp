@@ -1,4 +1,4 @@
-#include "memory_allocator_garbage_collector.h"
+#include "alloc_function.h"
 
 void example() {
     int* b = (int*)alloc(1000 * sizeof(int));
@@ -7,9 +7,9 @@ void example() {
 
 int main() {
     example();
-    int* b = (int*)alloc(100);
-    *b = 12;
-    std::cout<<*b<<std::endl;
-    std::cout<<b;
+    int* a = (int*)alloc(100);
+    *a = 12;
+    std::cout<<*a<<std::endl;
+    std::cout<<a;
     return 0;
 }
