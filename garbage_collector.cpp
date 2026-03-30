@@ -2,11 +2,10 @@
 // Created by kanishka on 27/3/26.
 //
 #include "garbage_collector.h"
-#include "memory_allocator.h"
 
 void get_stack() {
     size_t size;
-    char *stack_low;
+    char *stack_low;    //lowest address
     pthread_attr_t attr;
     pthread_getattr_np(pthread_self(), &attr);
     pthread_attr_getstack(&attr, (void **) &stack_low, &size);
@@ -24,12 +23,14 @@ void scan_stack() {
     }
 }
 
-void scan_heap() {
-    meta *list = heap;
+void scan_heap(meta* root) {
+    meta* list = root;
+
     while (list != NULL) {
         if (list->reachable) {
             char *start = (char *) list + sizeof(meta);
             char *end = start + list->size;
+
             for (char *curr = start; curr < end; curr += 8) {
                 uint64_t val = *(uint64_t *) curr;
                 mark_meta(val);
@@ -42,11 +43,12 @@ void scan_heap() {
 void mark_meta(uint64_t temp) {
     meta* list = heap;
     if ((temp >= ((uintptr_t)heap + sizeof(meta) )) && temp < ((uintptr_t)heap + 4096)) {
-        while (list != NULL) {
+        while (list != NULL ) {
             uintptr_t start = (uintptr_t)list + sizeof(meta);
-            uintptr_t end   = start + list->size;
-            if ((temp >= start) && (temp < end)) {
+            uintptr_t end = start + list->size;
+            if ((temp >= start) && (temp < end) && list->reachable == false) {
                 list->reachable = true;
+                scan_block(list);
                 break;
             }
             list = list->next;
@@ -57,10 +59,11 @@ void mark_meta(uint64_t temp) {
 void sweep() {
     meta* current = heap;
     while (current != NULL) {
-        if (current->reachable == false && current->free==false) {
+        meta* next = current->next;
+        if (!current->reachable && !current->free) {
             free_memory(current);
         }
-        current = current->next;
+        current = next;
     }
 }
 
@@ -69,5 +72,15 @@ void reset_reachable() {
     while (temp!=NULL) {
         temp->reachable = false;
         temp=temp->next;
+    }
+}
+
+void scan_block(meta* block) {
+    char* start = (char*)block + sizeof(meta);
+    char* end = start + block->size;
+
+    for (char* curr = start; curr < end; curr += 8) {
+        uint64_t val = *(uint64_t*)curr;
+        mark_meta(val);
     }
 }

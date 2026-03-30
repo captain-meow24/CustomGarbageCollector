@@ -6,10 +6,11 @@ void example() {
 }
 
 int main() {
+    std::cout<<"starting main" <<std::endl;
     example();
-    int* a = (int*)alloc(100);
+    int* a = (int*)alloc(10);
     *a = 12;
     std::cout<<*a<<std::endl;
-    std::cout<<a;
+    std::cout<<a<<std::endl;
     return 0;
 }

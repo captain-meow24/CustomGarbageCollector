@@ -9,19 +9,11 @@ void* alloc(size_t req_size) {
     if (temp) {
         return temp;
     }
-    else {
-
         get_stack();
         scan_stack();
-        scan_heap();
+        scan_heap(heap);
         sweep();
-        reset_reachable();
-        meta *new_free = find_free(req_size,heap);
-        if (new_free) {
-            createMeta(req_size, new_free);
-            return new_free + 1;
-        }
-    }
-    return NULL;
+        void *new_free = allocate(req_size);
+    return new_free;
 }
 

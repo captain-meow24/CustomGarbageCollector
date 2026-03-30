@@ -2,7 +2,7 @@
 // Created by kanishka on 27/3/26.
 //
 #include "memory_allocator.h"
-
+#include "memory_allocator.h"
 
 meta *heap = NULL;
 char *stack_high = nullptr;
@@ -11,7 +11,7 @@ void *current_top = nullptr;
 meta *find_free(size_t req_size, meta *start) {
     meta *temp = start;
     while (temp != NULL) {
-        if (temp->free && temp->size >= (req_size + sizeof(meta))) {
+        if (temp->free && temp->size >= req_size) {
             return temp;
         }
         temp = temp->next;
@@ -20,17 +20,19 @@ meta *find_free(size_t req_size, meta *start) {
 }
 
 void createMeta(size_t req_size, meta *current) {
-    meta *newm = reinterpret_cast<meta *>((char *) current + req_size + sizeof(meta));
-    newm->next = current->next;
-    if (newm->next) {
-        newm->next->prev = newm;
+    if (current->size >= req_size + sizeof(meta) + 8) {
+        meta *newm = reinterpret_cast<meta *>((char *) current + req_size + sizeof(meta));
+        newm->next = current->next;
+        if (newm->next) newm->next->prev = newm;
+        newm->free = true;
+        newm->reachable = false;
+        newm->size = current->size - req_size - sizeof(meta);
+        newm->prev = current;
+        current->next = newm;
+        current->size = req_size;
     }
-    newm->free = true;
-    newm->size = current->size - req_size - sizeof(meta);
-    newm->prev = current;
-    current->next = newm;
-    current->size = req_size;
     current->free = false;
+    current->reachable = false;
 }
 
 void *allocate(size_t req_size) {
@@ -57,6 +59,7 @@ void *allocate(size_t req_size) {
     return NULL;
 }
 void free_memory(meta *garbage) {
+    garbage->free = true;
     if (garbage->prev && garbage->next && garbage->prev->free && garbage->next->free) {
         garbage->prev->size += sizeof(meta) + sizeof(meta) + garbage->size + garbage->next->size;
         garbage->prev->next = garbage->next->next;
@@ -75,8 +78,5 @@ void free_memory(meta *garbage) {
         }
         garbage->size += sizeof(meta) + garbage->next->size;
         garbage->next = garbage->next->next;
-        garbage->free = true;
-    } else {
-        garbage->free = true;
     }
 }

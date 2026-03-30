@@ -3,7 +3,7 @@ project(CustomGarbageCollector)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(CustomGarbageCollector main.cpp
+add_executable(CustomGarbageCollector example.cpp
         memory_allocator.h
         memory_allocator.cpp
         garbage_collector.cpp
