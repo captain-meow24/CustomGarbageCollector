@@ -8,6 +8,8 @@ meta *heap = NULL;
 char *stack_high = nullptr;
 void *current_top = nullptr;
 
+int syscall_flag = 0;
+
 meta *find_free(size_t req_size, meta *start) {
     meta *temp = start;
     while (temp != NULL) {
@@ -37,13 +39,15 @@ void createMeta(size_t req_size, meta *current) {
 
 void *allocate(size_t req_size) {
 
-    if (req_size % 8) {
+   /* if (req_size % 8) {
         size_t alignm = req_size % 8;
         alignm = 8 - alignm;
         req_size += alignm;
     }
+    */
     if (heap == NULL) {
         heap = reinterpret_cast<meta *>(mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
+        syscall_flag =1;
         heap->prev = NULL;
         heap->free = true;
         heap->size = 4096 - sizeof(meta);

@@ -42,7 +42,7 @@ void scan_heap(meta* root) {
 
 void mark_meta(uint64_t temp) {
     meta* list = heap;
-    if ((temp >= ((uintptr_t)heap + sizeof(meta) )) && temp < ((uintptr_t)heap + 4096)) {
+    if ((temp >= ((uintptr_t)heap + sizeof(meta) )) && temp < ((uintptr_t)heap + 4096* syscall_flag)) {
         while (list != NULL ) {
             uintptr_t start = (uintptr_t)list + sizeof(meta);
             uintptr_t end = start + list->size;

@@ -6,7 +6,8 @@ void example() {
 }
 
 int main() {
-    std::cout<<"starting main" <<std::endl;
+    example();
+    example();
     example();
     int* a = (int*)alloc(10);
     *a = 12;

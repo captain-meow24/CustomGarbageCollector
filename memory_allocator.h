@@ -17,6 +17,7 @@ struct meta {
     meta *prev;
     bool reachable = false;
 };
+extern int syscall_flag;
 
 extern meta* heap;
 
@@ -25,6 +26,7 @@ meta* find_free(size_t req_size, meta* start);
 void createMeta(size_t req_size, meta* current);
 void* allocate(size_t req_size);
 void free_memory(meta* garbage);
+//void print_heap();
 
 
 #endif //MEMORY_ALLOCATOR_H

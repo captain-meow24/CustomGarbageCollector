@@ -21,7 +21,6 @@ void sweep();
 void scan_stack();
 void scan_heap(meta* root);
 void mark_meta(uint64_t temp);
-void sweep();
 void reset_reachable();
 void scan_block(meta* block);
 
