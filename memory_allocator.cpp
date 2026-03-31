@@ -2,19 +2,21 @@
 // Created by kanishka on 27/3/26.
 //
 #include "memory_allocator.h"
-#include "memory_allocator.h"
+
+char* heap_break = 0;
 
 meta *heap = NULL;
 char *stack_high = nullptr;
 void *current_top = nullptr;
 
-int syscall_flag = 0;
 
 meta *find_free(size_t req_size, meta *start) {
+    //finds free block of memory greater than or equal to the requested size
     meta *temp = start;
     while (temp != NULL) {
         if (temp->free && temp->size >= req_size) {
             return temp;
+            //returns the meta block
         }
         temp = temp->next;
     }
@@ -23,7 +25,10 @@ meta *find_free(size_t req_size, meta *start) {
 
 void createMeta(size_t req_size, meta *current) {
     if (current->size >= req_size + sizeof(meta) + 8) {
+        //checks if the free memory is greater than or equal to requested size + enough memory to create meta data + 8 bytes buffer
         meta *newm = reinterpret_cast<meta *>((char *) current + req_size + sizeof(meta));
+        //since the memory is enough, it creates a new block at distance after size of meta block + requested size
+        //we are converting current to char for appropriate pointer arithematic
         newm->next = current->next;
         if (newm->next) newm->next->prev = newm;
         newm->free = true;
@@ -31,29 +36,25 @@ void createMeta(size_t req_size, meta *current) {
         newm->size = current->size - req_size - sizeof(meta);
         newm->prev = current;
         current->next = newm;
-        current->size = req_size;
     }
+    //if the size is not enough for a new meta block then we just allocate that block of memory and not create new block
+    current->size = req_size;
     current->free = false;
     current->reachable = false;
 }
 
 void *allocate(size_t req_size) {
 
-   /* if (req_size % 8) {
-        size_t alignm = req_size % 8;
-        alignm = 8 - alignm;
-        req_size += alignm;
-    }
-    */
     if (heap == NULL) {
-        heap = reinterpret_cast<meta *>(mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
-        syscall_flag =1;
+        int size_flag = (req_size/4096) + 1;
+        heap = reinterpret_cast<meta*>(sbrk(4096*size_flag));
+        heap_break = (char*)heap + 4096*size_flag;
         heap->prev = NULL;
         heap->free = true;
-        heap->size = 4096 - sizeof(meta);
+        heap->size = 4096*size_flag - sizeof(meta);
         heap->next = NULL;
         createMeta(req_size, heap);
-        return reinterpret_cast<char*>(heap + 1) ;
+        return reinterpret_cast<char*>(heap + 1);
     }
     meta *free_space = find_free(req_size, heap);
     if (free_space) {
@@ -84,3 +85,20 @@ void free_memory(meta *garbage) {
         garbage->next = garbage->next->next;
     }
 }
+
+void print_heap() {
+    meta* temp = heap;
+    size_t total_alloced = 0;
+    size_t total_free = 0;
+    while(temp !=NULL) {
+        if (temp->free) {
+            total_free += temp->size;
+        }
+        else {
+            total_alloced += temp->size;
+        }
+        temp=temp->next;
+    }
+    std::cout<<"Total allocated memory: "<<total_alloced << ", Total free memory: "<<total_free<<std::endl;
+}
+

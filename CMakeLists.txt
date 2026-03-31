@@ -10,4 +10,5 @@ add_executable(CustomGarbageCollector example.cpp
         garbage_collector.h
         alloc_function.cpp
         alloc_function.h
+        basic_memory_allocator_example.cpp
 )
