@@ -1,4 +1,4 @@
-# Conservative Custom Garbage Collector
+# Custom Garbage Collector
 This is a library that allocates memory on heap and collects unreachable memory or garbage automatically when we run out of memory. 
 ## Working of the memory allocator-
 It allocates atleast 4KB memory on the heap using sbrk (a linux system call that increments the heap break), if the user asks for more than 4KB of memory, it allocates in multiples of 4KB that is sufficient for the requested size.
