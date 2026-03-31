@@ -1,7 +1,7 @@
 # Custom Garbage Collector
 This is a library that allocates memory on heap and collects unreachable memory or garbage automatically when we run out of memory. 
 
-## Working of the memory allocator-
+## Working of the memory allocator -
 - It allocates atleast 4KB memory on the heap using sbrk (a linux system call that increments the heap break), if the user asks for more than 4KB of memory, it allocates in multiples of 4KB that is sufficient for the requested size.  
 - When we run out of this memory, it extends the heap further using system call.  
 
@@ -26,13 +26,13 @@ int main() {
 - The pointer created inside the example() function will go out of scope once the function call finishes but the memory allocated on the heap is there till the end of the process unless freed.  
 - The garbage collector will identify this memory automatically and free it.  
 
-## Working-
+## Working -
 - I implemented mark and sweep algorithm for the garbage collector.  
 - For this, we scan the process stack from current top to base address (highest address of the stack on x86) and check in chunks of 8-bytes one after another to see if any of them points to any allocated block on the heap.  
 - We mark each block accessible that has any references to it and perform reachability analysis, that is, we check the data region of each block on the heap in chunks of 8-bytes to check if any of them reference to other blocks on the heap.  
 - After we are done marking the blocks, we free all blocks of memory that are not reachable.  
 
-## Instructions to use-
+## Instructions to use -
 - Just copy paste this library into your code.  
 - This library is linux dependent.  
 - This is however, a conservative memory allocator and garbage collector which works on mark and sweep algorithm.  
