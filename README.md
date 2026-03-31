@@ -8,7 +8,7 @@ Garbage is the memory that was allocated on the heap but is no longer reachable 
 It is desirable to deallocate and reclaim the memory back into the heap so that there is enough space on the heap for future allocations.
 
 For example-
-'''
+'''cpp
 void example() {
     int* b = (int*)alloc(1000 * sizeof(int));
     *b = 12;
@@ -18,6 +18,7 @@ int main() {
     return 0;
 }
 '''
+
 The pointer created inside the example() function will go out of scope once the function call finishes but the memory allocated on the heap is there till the end of the process unless freed.
 The garbage collector will identify this memory automatically and free it.
 
