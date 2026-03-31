@@ -64,20 +64,25 @@ void *allocate(size_t req_size) {
     return NULL;
 }
 void free_memory(meta *garbage) {
+    //frees the allocated blocks and merges them
     garbage->free = true;
     if (garbage->prev && garbage->next && garbage->prev->free && garbage->next->free) {
+        //when both neighbours are free, merge them into a single free block
         garbage->prev->size += sizeof(meta) + sizeof(meta) + garbage->size + garbage->next->size;
         garbage->prev->next = garbage->next->next;
         if (garbage->next->next) {
+            //if the next of garbage's next exists, then change its prev to garbage's prev
             garbage->next->next->prev = garbage->prev;
         }
     } else if (garbage->prev && garbage->prev->free) {
+        //if only prev of garbage is free, merge garbage into prev block
         garbage->prev->size += garbage->size + sizeof(meta);
         garbage->prev->next = garbage->next;
         if (garbage->next) {
             garbage->next->prev = garbage->prev;
         }
     } else if (garbage->next && garbage->next->free) {
+        //if only garbage's next exists, merge them into freed garbage block
         if (garbage->next->next) {
             garbage->next->next->prev = garbage;
         }
@@ -87,6 +92,7 @@ void free_memory(meta *garbage) {
 }
 
 void print_heap() {
+    //this function iterates through the double linked list that is heap and calculates total allocated ans free memory ad prints it
     meta* temp = heap;
     size_t total_alloced = 0;
     size_t total_free = 0;
